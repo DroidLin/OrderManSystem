@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Stable
 @Serializable
-data object LoginLauncherModel
+internal data object LoginLauncherModel

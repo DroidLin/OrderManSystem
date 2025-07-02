@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Stable
 @Serializable
-data class LoginScreenModel(
+internal data class LoginScreenModel(
     val inputAccount: String?
 )

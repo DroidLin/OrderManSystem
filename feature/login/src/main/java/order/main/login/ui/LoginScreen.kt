@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import order.main.login.ui.internal.LoginScreenModel
 
 @Composable
-fun LoginScreen(
+internal fun LoginScreen(
     backPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
