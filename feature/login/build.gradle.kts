@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "order.main.foundation.ui"
+    namespace = "order.main.login"
     compileSdk = project.property("compileSdkVersion").toString().toInt()
 
     defaultConfig {
@@ -44,45 +44,17 @@ kotlin {
 }
 
 dependencies {
-    api(libs.androidx.core.ktx)
-    api(libs.androidx.appcompat)
-    api(libs.material)
-    api(libs.androidx.material3.android)
-    testApi(libs.junit)
-    androidTestApi(libs.androidx.junit)
-    androidTestApi(libs.androidx.espresso.core)
 
-    // compose
-    api(libs.androidx.activity.compose)
-    api(platform(libs.androidx.compose.bom))
-    androidTestApi(platform(libs.androidx.compose.bom))
-
-    // ui tooling
-    debugApi(libs.androidx.ui.tooling)
-    debugApi(libs.androidx.ui.test.manifest)
-
-    // junit
-    testApi(libs.junit)
-    androidTestApi(libs.androidx.junit)
-    androidTestApi(libs.androidx.espresso.core)
-    androidTestApi(libs.androidx.ui.test.junit4)
-
-    // koin
-    api(libs.koin.core)
-    api(libs.koin.coroutines)
-    api(libs.koin.compose)
-    api(libs.koin.android)
-    api(libs.koin.android.compat)
-    api(libs.koin.androidx.compose)
-    api(libs.koin.annotations)
-    ksp(libs.koin.ksp.compiler)
-
-    // kotlin serialization
-    api(libs.kotlin.serialization)
-    api(libs.kotlin.immutable.collection)
-
-    // navigation
-    api(libs.jetpack.navigation)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(project(":common:foundation"))
+    implementation(project(":common:foundation-ui"))
+
+    // koin ksp compiler
+    ksp(libs.koin.ksp.compiler)
 }
