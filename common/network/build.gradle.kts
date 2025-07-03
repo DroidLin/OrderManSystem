@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "order.main.foundation"
+    namespace = "order.main.network"
     compileSdk = project.property("compileSdkVersion").toString().toInt()
 
     defaultConfig {
@@ -50,16 +50,14 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // kotlin serialization
-    api(libs.kotlin.serialization.json)
-    api(libs.kotlin.serialization.protobuf)
+    implementation(project(":common:foundation"))
 
-    // koin
-    api(libs.koin.core)
-    api(libs.koin.coroutines)
-    api(libs.koin.android)
-    api(libs.koin.android.compat)
-    api(libs.koin.annotations)
+    // ktor
+    implementation(libs.ktor.client.android)
+    implementation(libs.ktor.client.serialization)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.serialization.kotlinx.protobuf)
 
     ksp(libs.koin.ksp.compiler)
 }

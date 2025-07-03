@@ -43,6 +43,10 @@ kotlin {
     }
 }
 
+ksp {
+    arg("KOIN_DEFAULT_MODULE", project.property("KoinDefaultModule").toString())
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)

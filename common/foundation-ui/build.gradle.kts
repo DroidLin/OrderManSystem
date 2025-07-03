@@ -43,6 +43,10 @@ kotlin {
     }
 }
 
+ksp {
+    arg("KOIN_DEFAULT_MODULE", project.property("KoinDefaultModule").toString())
+}
+
 dependencies {
     api(libs.androidx.core.ktx)
     api(libs.androidx.appcompat)
@@ -68,17 +72,10 @@ dependencies {
     androidTestApi(libs.androidx.ui.test.junit4)
 
     // koin
-    api(libs.koin.core)
-    api(libs.koin.coroutines)
     api(libs.koin.compose)
-    api(libs.koin.android)
-    api(libs.koin.android.compat)
     api(libs.koin.androidx.compose)
-    api(libs.koin.annotations)
     ksp(libs.koin.ksp.compiler)
 
-    // kotlin serialization
-    api(libs.kotlin.serialization)
     api(libs.kotlin.immutable.collection)
 
     // navigation

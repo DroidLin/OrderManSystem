@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "order.main.foundation"
+    namespace = "order.main.datastore"
     compileSdk = project.property("compileSdkVersion").toString().toInt()
 
     defaultConfig {
@@ -38,10 +38,6 @@ kotlin {
     }
 }
 
-ksp {
-    arg("KOIN_DEFAULT_MODULE", project.property("KoinDefaultModule").toString())
-}
-
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -50,16 +46,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // kotlin serialization
-    api(libs.kotlin.serialization.json)
-    api(libs.kotlin.serialization.protobuf)
+    implementation(project(":common:foundation"))
 
-    // koin
-    api(libs.koin.core)
-    api(libs.koin.coroutines)
-    api(libs.koin.android)
-    api(libs.koin.android.compat)
-    api(libs.koin.annotations)
+    api(libs.datastore)
+    api(libs.datastore.preferences)
 
     ksp(libs.koin.ksp.compiler)
 }

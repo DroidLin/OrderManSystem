@@ -55,6 +55,10 @@ composeCompiler {
     stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("stability_config.conf"))
 }
 
+ksp {
+    arg("KOIN_DEFAULT_MODULE", project.property("KoinDefaultModule").toString())
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -82,4 +86,10 @@ dependencies {
 
     implementation(project(":common:foundation"))
     implementation(project(":common:foundation-ui"))
+    implementation(project(":common:database"))
+    implementation(project(":common:datastore"))
+    implementation(project(":common:network"))
+    implementation(project(":feature:login"))
+
+    ksp(libs.koin.ksp.compiler)
 }
