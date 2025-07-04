@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="string_login_password_at_least_8">密码长度最少为8位</string>
+    <string name="string_login_password_hint">请输入您的密码，长度不少于8位</string>
+</resources>

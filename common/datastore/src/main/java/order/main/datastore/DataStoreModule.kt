@@ -7,5 +7,4 @@ import org.koin.core.annotation.Module
         SerializerModule::class
     ]
 )
-class DataStoreModule {
-}
+class DataStoreModule

@@ -51,6 +51,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation(project(":common:foundation"))
+    implementation(project(":common:datastore"))
 
     // ktor
     implementation(libs.ktor.client.android)

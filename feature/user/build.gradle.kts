@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "order.main.login"
+    namespace = "order.main.user"
     compileSdk = project.property("compileSdkVersion").toString().toInt()
 
     defaultConfig {
@@ -58,7 +58,7 @@ dependencies {
 
     implementation(project(":common:foundation"))
     implementation(project(":common:foundation-ui"))
-    implementation(project(":feature:user"))
+    implementation(project(":common:datastore"))
 
     // koin ksp compiler
     ksp(libs.koin.ksp.compiler)

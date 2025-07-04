@@ -2,16 +2,16 @@ package order.main.system
 
 import order.main.database.DatabaseModule
 import order.main.datastore.DataStoreModule
-import order.main.foundation.AppFoundationModule
-import order.main.network.NetworkApiModule
+import order.main.foundation.FoundationDependency
+import order.main.network.NetworkApiDependency
 import org.koin.core.annotation.Module
 
 @Module(
     includes = [
-        AppFoundationModule::class,
+        FoundationDependency::class,
         DatabaseModule::class,
         DataStoreModule::class,
-        NetworkApiModule::class,
+        NetworkApiDependency::class,
     ]
 )
 class AppLauncherModules

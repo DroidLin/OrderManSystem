@@ -4,7 +4,9 @@ import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.http.Cookie
 import io.ktor.http.Url
 
-internal class ApplicationCookieContainer : CookiesStorage {
+internal class AppCookieStorage(private val cookieDataStore: CookieDataStore) : CookiesStorage {
+
+    private val _cookieCache = mutableListOf<Cookie>()
 
     override suspend fun get(requestUrl: Url): List<Cookie> {
         return emptyList()
