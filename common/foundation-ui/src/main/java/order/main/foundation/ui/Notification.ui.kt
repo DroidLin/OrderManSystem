@@ -11,10 +11,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,10 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -58,12 +56,12 @@ class NotificationMetadata(
     }
 }
 
-class AppNotificationHostState {
+class NotificationHostState {
 
     private val _mutex = Mutex()
 
-    var currentNotification by mutableStateOf<NotificationMetadata?>(null)
-        private set
+    private val _notificationMetadata = MutableStateFlow<NotificationMetadata?>(null)
+    val notificationMetadata = this._notificationMetadata.asStateFlow()
 
     suspend fun postNotification(
         notification: AppNotification,
@@ -72,11 +70,11 @@ class AppNotificationHostState {
         return this._mutex.withLock {
             try {
                 suspendCancellableCoroutine { continuation ->
-                    this.currentNotification =
+                    this._notificationMetadata.value =
                         NotificationMetadata(notification, duration, continuation)
                 }
             } finally {
-                this.currentNotification = null
+                this._notificationMetadata.value = null
             }
         }
     }
@@ -130,13 +128,14 @@ private val PopEnterTransition =
 
 @Composable
 fun NotificationHost(
-    appNotificationHostState: AppNotificationHostState,
+    notificationHostState: NotificationHostState,
     modifier: Modifier = Modifier,
 ) {
-    val currentNotificationMetadata = appNotificationHostState.currentNotification
+    val currentNotificationMetadataState = notificationHostState.notificationMetadata.asState()
     val visibleState = remember { MutableTransitionState(false) }
-    visibleState.targetState = currentNotificationMetadata != null
+    val currentNotificationMetadata = currentNotificationMetadataState.value
     LaunchedEffect(currentNotificationMetadata) {
+        visibleState.targetState = currentNotificationMetadata != null
         if (currentNotificationMetadata != null) {
             val duration = currentNotificationMetadata.duration.toMilliSeconds()
             delay(duration)
@@ -149,31 +148,28 @@ fun NotificationHost(
         enter = EnterTransition,
         exit = ExitTransition
     ) {
-        var notification by remember { mutableStateOf<NotificationMetadata?>(null) }
-        if (currentNotificationMetadata != null) {
-            notification = currentNotificationMetadata
+        val notificationState = remember { mutableStateOf<NotificationMetadata?>(null) }
+        if (currentNotificationMetadata != null && notificationState.value != currentNotificationMetadata) {
+            notificationState.value = currentNotificationMetadata
+        }
+        val notification = notificationState.value
+        if (notification == null) {
+            return@AnimatedVisibility
         }
         AnimatedContent(
             targetState = notification,
             contentAlignment = Alignment.Center,
             transitionSpec = {
-                if (this.initialState == null) {
-                    EnterTransition togetherWith ExitTransition
-                } else {
-                    PopEnterTransition togetherWith ExitTransition
-                }
+                PopEnterTransition togetherWith ExitTransition
             },
             label = "app_build_in_notification_animation_content"
         ) { notification ->
-            if (notification == null) {
-                Box(modifier = Modifier.fillMaxWidth())
-                return@AnimatedContent
-            }
             NotificationContent(
                 modifier = Modifier
                     .padding(all = 16.dp),
                 notification = notification.notification,
-                onPress = notification::performAction
+                onPress = notification::performAction,
+                isRunning = this.transition::isRunning
             )
         }
     }
@@ -182,15 +178,20 @@ fun NotificationHost(
 @Composable
 fun NotificationContent(
     notification: AppNotification,
+    isRunning: () -> Boolean,
     onPress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier,
-        onClick = onPress,
+        onClick = {
+            if (!isRunning()) {
+                onPress()
+            }
+        },
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.secondaryContainer,
-        shadowElevation = 5.dp,
+        shadowElevation = 6.dp,
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
     ) {
         when (notification) {

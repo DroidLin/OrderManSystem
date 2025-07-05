@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -91,7 +93,7 @@ fun AppEventProvider(content: @Composable () -> Unit) {
 
 class AppEventInstance() {
 
-    private val _eventChannel = Channel<Event>()
+    private val _eventChannel = Channel<Event>(capacity = 5)
 
     val eventFlow = this._eventChannel.receiveAsFlow()
 
@@ -113,11 +115,11 @@ fun LayerEventSurface(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val notificationHostState = remember { AppNotificationHostState() }
+    val notificationHostState = remember { NotificationHostState() }
     val snackBarHostState = remember { SnackbarHostState() }
     AppEventProvider {
         LayerEventController(
-            appNotificationHostState = notificationHostState,
+            notificationHostState = notificationHostState,
             snackBarHostState = snackBarHostState
         )
         Box(
@@ -134,7 +136,7 @@ fun LayerEventSurface(
                     .statusBarsPadding()
                     .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
                     .align(Alignment.TopCenter),
-                appNotificationHostState = notificationHostState,
+                notificationHostState = notificationHostState,
             )
 
             // bottom toast
@@ -155,7 +157,7 @@ fun LayerEventSurface(
  */
 @Composable
 private fun LayerEventController(
-    appNotificationHostState: AppNotificationHostState,
+    notificationHostState: NotificationHostState,
     snackBarHostState: SnackbarHostState
 ) {
     EventConsumer(appEventInstance.eventFlow) { event ->
@@ -174,7 +176,7 @@ private fun LayerEventController(
             }
 
             is Event.SimpleNotification -> {
-                val ret = appNotificationHostState.postNotification(
+                val ret = notificationHostState.postNotification(
                     notification = AppNotification.Simple(
                         title = event.title,
                         subTitle = event.subTitle,
@@ -193,7 +195,7 @@ private fun LayerEventController(
 
 @Composable
 private fun LayerNotificationAreas(
-    appNotificationHostState: AppNotificationHostState,
+    notificationHostState: NotificationHostState,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -204,7 +206,7 @@ private fun LayerNotificationAreas(
             modifier = Modifier
                 .widthIn(max = 640.dp)
                 .fillMaxWidth(),
-            appNotificationHostState = appNotificationHostState,
+            notificationHostState = notificationHostState,
         )
     }
 }
@@ -220,7 +222,18 @@ private fun LayerSnackBarAreas(
     ) {
         SnackbarHost(
             modifier = Modifier,
-            hostState = snackBarHostState
+            hostState = snackBarHostState,
+            snackbar = { data ->
+                Snackbar(
+                    snackbarData = data,
+                    shape = MaterialTheme.shapes.large,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    actionColor = MaterialTheme.colorScheme.primary,
+                    actionContentColor = MaterialTheme.colorScheme.primary,
+                    dismissActionContentColor = MaterialTheme.colorScheme.primary
+                )
+            }
         )
     }
 }
