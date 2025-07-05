@@ -3,7 +3,6 @@ package order.main.system
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,7 +49,7 @@ fun App() {
                             appEventInstance.postEvent(
                                 event = Event.SimpleNotification(
                                     title = "Hello World",
-                                    subTitle = "你好",
+                                    subTitle = "你好 + ${System.currentTimeMillis()}",
                                     onFinished = { ret ->
                                         println("notification result: $ret")
                                     }

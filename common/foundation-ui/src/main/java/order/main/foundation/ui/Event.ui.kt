@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -112,9 +111,6 @@ class AppEventInstance() {
 @Composable
 fun LayerEventSurface(
     modifier: Modifier = Modifier,
-    snackBarHost: @Composable (Modifier, SnackbarHostState) -> Unit = { p1, p2 ->
-        SnackbarHost(p2, p1)
-    },
     content: @Composable () -> Unit
 ) {
     val notificationHostState = remember { AppNotificationHostState() }
@@ -154,6 +150,9 @@ fun LayerEventSurface(
     }
 }
 
+/**
+ * 新增度通知类型在此补充
+ */
 @Composable
 private fun LayerEventController(
     appNotificationHostState: AppNotificationHostState,
@@ -201,11 +200,10 @@ private fun LayerNotificationAreas(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        AppNotificationHost(
+        NotificationHost(
             modifier = Modifier
                 .widthIn(max = 640.dp)
-                .fillMaxWidth()
-                .heightIn(min = 80.dp),
+                .fillMaxWidth(),
             appNotificationHostState = appNotificationHostState,
         )
     }

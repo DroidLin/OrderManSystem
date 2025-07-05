@@ -1,6 +1,8 @@
 package order.main.foundation.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -113,12 +115,27 @@ sealed class AppNotification {
     ) : AppNotification()
 }
 
+private const val DURATION = 600
+
+private val EnterTransition =
+    slideInVertically(animationSpec = tween(DURATION)) { -it } +
+            fadeIn(animationSpec = tween(DURATION))
+private val ExitTransition =
+    slideOutVertically(animationSpec = tween(DURATION)) { -it } +
+            fadeOut(animationSpec = tween(DURATION))
+
+private val PopEnterTransition =
+    slideInVertically(animationSpec = tween(DURATION, DURATION)) { -it } +
+            fadeIn(animationSpec = tween(DURATION, DURATION))
+
 @Composable
-fun AppNotificationHost(
+fun NotificationHost(
     appNotificationHostState: AppNotificationHostState,
     modifier: Modifier = Modifier,
 ) {
     val currentNotificationMetadata = appNotificationHostState.currentNotification
+    val visibleState = remember { MutableTransitionState(false) }
+    visibleState.targetState = currentNotificationMetadata != null
     LaunchedEffect(currentNotificationMetadata) {
         if (currentNotificationMetadata != null) {
             val duration = currentNotificationMetadata.duration.toMilliSeconds()
@@ -126,42 +143,39 @@ fun AppNotificationHost(
             currentNotificationMetadata.dismiss()
         }
     }
-    AnimatedContent(
+    AnimatedVisibility(
         modifier = modifier,
-        targetState = currentNotificationMetadata,
-        contentAlignment = Alignment.Center,
-        transitionSpec = {
-            val duration = 800
-            val delay = if (this.initialState == null) {
-                0
-            } else {
-                duration
-            }
-            val animationEnter = slideInVertically(
-                animationSpec = tween(durationMillis = duration, delayMillis = delay)
-            ) { -it } + fadeIn(
-                animationSpec = tween(
-                    durationMillis = duration,
-                    delayMillis = delay
-                )
-            )
-            val animationExit = slideOutVertically(
-                animationSpec = tween(durationMillis = duration)
-            ) { -it } + fadeOut(animationSpec = tween(durationMillis = duration))
-            animationEnter togetherWith animationExit
-        },
-        label = "app_build_in_notification_animation_content"
-    ) { notification ->
-        if (notification == null) {
-            Box(modifier = Modifier.fillMaxWidth())
-            return@AnimatedContent
+        visibleState = visibleState,
+        enter = EnterTransition,
+        exit = ExitTransition
+    ) {
+        var notification by remember { mutableStateOf<NotificationMetadata?>(null) }
+        if (currentNotificationMetadata != null) {
+            notification = currentNotificationMetadata
         }
-        NotificationContent(
-            modifier = Modifier
-                .padding(all = 16.dp),
-            notification = notification.notification,
-            onPress = notification::performAction
-        )
+        AnimatedContent(
+            targetState = notification,
+            contentAlignment = Alignment.Center,
+            transitionSpec = {
+                if (this.initialState == null) {
+                    EnterTransition togetherWith ExitTransition
+                } else {
+                    PopEnterTransition togetherWith ExitTransition
+                }
+            },
+            label = "app_build_in_notification_animation_content"
+        ) { notification ->
+            if (notification == null) {
+                Box(modifier = Modifier.fillMaxWidth())
+                return@AnimatedContent
+            }
+            NotificationContent(
+                modifier = Modifier
+                    .padding(all = 16.dp),
+                notification = notification.notification,
+                onPress = notification::performAction
+            )
+        }
     }
 }
 
@@ -175,9 +189,9 @@ fun NotificationContent(
         modifier = modifier,
         onClick = onPress,
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         shadowElevation = 5.dp,
-        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.2f))
+        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
     ) {
         when (notification) {
             is AppNotification.Simple -> SimpleNotificationContent(
