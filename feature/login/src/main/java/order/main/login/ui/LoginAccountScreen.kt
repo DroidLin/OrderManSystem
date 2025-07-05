@@ -1,4 +1,4 @@
-@file:Suppress("FunctionName")
+@file:Suppress("FunctionName", "UndeclaredKoinUsage")
 
 package order.main.login.ui
 

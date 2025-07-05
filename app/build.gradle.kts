@@ -89,7 +89,9 @@ dependencies {
     implementation(project(":common:database"))
     implementation(project(":common:datastore"))
     implementation(project(":common:network"))
+
     implementation(project(":feature:login"))
+    implementation(project(":feature:user"))
 
     ksp(libs.koin.ksp.compiler)
 }

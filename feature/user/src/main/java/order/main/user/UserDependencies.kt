@@ -6,6 +6,7 @@ import order.main.foundation.AndroidContext
 import order.main.foundation.AppLifecycleCoroutineScope
 import order.main.user.internal.LocalUserDataStore
 import order.main.user.internal.MyLocalUserDataRepository
+import order.main.user.qualifier.MyUserDataRepository
 import order.main.user.tests.TestMyLocalUserDataRepository
 import order.main.user.tests.TestUserDataRepository
 import org.jetbrains.annotations.TestOnly
