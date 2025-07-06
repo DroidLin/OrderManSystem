@@ -16,14 +16,12 @@ internal class MyLocalUserAccountRepository(
         dataStore.updateData {
             it.copy(
                 userId = userAccount.userId,
-                accessToken = userAccount.accessToken
             )
         }
     }
 
     override suspend fun clear() {
-        val userData = PreferenceUserData(System.currentTimeMillis(), "")
-        dataStore.updateData { userData }
+        dataStore.updateData { PreferenceUserData.Empty }
     }
 
 }

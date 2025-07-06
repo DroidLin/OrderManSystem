@@ -3,21 +3,25 @@
 package order.main.login.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Policy
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -46,6 +51,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.delay
 import order.main.foundation.ui.AppIconButton
+import order.main.foundation.ui.Event
+import order.main.foundation.ui.appEventInstance
 import order.main.foundation.ui.asState
 import order.main.foundation.ui.rememberDerivedStateOf
 import order.main.login.R
@@ -68,7 +75,7 @@ internal fun LoginAccountScreen(
 ) {
     val focusManager = LocalFocusManager.current
     Column(
-        modifier = modifier,
+        modifier = modifier.verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TopAppBar(
@@ -133,6 +140,42 @@ internal fun LoginAccountScreen(
             ),
             visualTransformation = PasswordVisualTransformation()
         )
+        DoLoginButton(
+            modifier = Modifier
+                .widthIn(max = 360.dp)
+                .fillMaxWidth(0.5f),
+            onClick = doLogin,
+            isLoading = { uiStateGetter().isLoading },
+            buttonEnable = { sideEffectStateGetter().doLoginButtonEnabled }
+        )
+        Spacer(modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun DoLoginButton(
+    onClick: () -> Unit,
+    isLoading: () -> Boolean,
+    buttonEnable: () -> Boolean,
+    modifier: Modifier = Modifier
+) {
+    val enable by rememberDerivedStateOf(buttonEnable)
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enable
+    ) {
+        val loading by rememberDerivedStateOf(isLoading)
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(end = 8.dp),
+                strokeWidth = 3.dp,
+                strokeCap = StrokeCap.Round
+            )
+        }
+        Text(text = stringResource(R.string.login_string_login_button))
     }
 }
 
@@ -198,6 +241,7 @@ fun NavGraphBuilder.loginAccountScreen(backPress: () -> Unit) {
         val viewModel = koinViewModel<LoginAccountViewModel>()
         val uiState = viewModel.uiState.asState()
         val sideEffectState = viewModel.sideEffectState.asState()
+        val appEventInstance = appEventInstance
         LoginAccountScreen(
             modifier = Modifier
                 .statusBarsPadding()
@@ -209,7 +253,17 @@ fun NavGraphBuilder.loginAccountScreen(backPress: () -> Unit) {
             sideEffectStateGetter = sideEffectState::value,
             updateInputAccount = viewModel::updateInputAccount,
             updateInputPassword = viewModel::updateInputPassword,
-            doLogin = viewModel::doLogin
+            doLogin = {
+                viewModel.doLogin(
+                    showNotification = { message ->
+                        appEventInstance.tryPostEvent(
+                            event = Event.Toast.SnackBarToast(
+                                showMessage = message
+                            )
+                        )
+                    }
+                )
+            }
         )
     }
 }

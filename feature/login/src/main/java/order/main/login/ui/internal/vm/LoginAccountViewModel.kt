@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import order.main.foundation.ioScope
+import order.main.foundation.runOnIO
 import order.main.login.R
+import order.main.login.repositories.LoginRepository
 import order.main.login.ui.LoginAccountScreenRoute
 import order.main.login.ui.internal.model.InputExtras
 import order.main.login.ui.internal.model.LoginAccountPasswordSideEffectState
@@ -24,7 +26,8 @@ internal class LoginAccountViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val context: Context,
     private val loginAccountScreenRoute: LoginAccountScreenRoute,
-    private val userAccountLocalRepository: UserAccountLocalRepository
+    private val userAccountLocalRepository: UserAccountLocalRepository,
+    private val loginRepository: LoginRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -51,7 +54,7 @@ internal class LoginAccountViewModel(
                 }
             } else null
             LoginAccountPasswordSideEffectState(
-                doLoginButtonEnabled = passwordText.length > 8,
+                doLoginButtonEnabled = !uiState.isLoading && passwordText.length >= 8,
                 inputAccountExtras = null,
                 inputPasswordExtras = inputPasswordExtras
             )
@@ -66,8 +69,25 @@ internal class LoginAccountViewModel(
         this._uiState.update { it.copy(inputPassword = value) }
     }
 
-    fun doLogin() {
+    fun doLogin(showNotification: (String) -> Unit) {
+        val doLoginEnabled = this.sideEffectState.value.doLoginButtonEnabled
+        if (!doLoginEnabled) {
+            return
+        }
+        val inputPhone = this._uiState.value.inputAccount.text
+        val inputPassword = this._uiState.value.inputPassword.text
 
+        this._uiState.update { it.copy(isLoading = true) }
+        runOnIO {
+            val ret = this.loginRepository.loginPassword(inputPhone, inputPassword)
+            if (ret.isFailure) {
+                val message = ret.exceptionOrNull()?.message
+                if (!message.isNullOrEmpty()) {
+                    showNotification(message)
+                }
+                return@runOnIO
+            }
+        }.invokeOnCompletion { this._uiState.update { it.copy(isLoading = false) } }
     }
 
 }

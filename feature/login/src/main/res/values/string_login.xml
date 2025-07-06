@@ -7,4 +7,6 @@
     <string name="login_string_input_your_phone">请输入手机号</string>
     <string name="login_string_input_your_password">请输入密码</string>
     <string name="login_string_login_to_continue">登陆以继续</string>
+
+    <string name="login_string_login_button">登陆</string>
 </resources>

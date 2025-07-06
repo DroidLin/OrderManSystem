@@ -7,14 +7,14 @@ import order.main.user.data.UserInfo
 internal fun PreferenceUserData.toUserData(): UserAccount {
     return UserAccount(
         userId = this.userId,
-        accessToken = accessToken
+        isActive = this.isActive
     )
 }
 
 internal fun UserAccount.toPreference(): PreferenceUserData {
     return PreferenceUserData(
         userId = this.userId,
-        accessToken = accessToken
+        isActive = this.isActive
     )
 }
 

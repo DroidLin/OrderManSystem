@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library.configuration)
     alias(libs.plugins.ksp.configuration)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -12,9 +13,9 @@ dependencies {
     implementation(project(":common:datastore"))
 
     // ktor
-    implementation(libs.ktor.client.android)
-    implementation(libs.ktor.client.serialization)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.serialization.kotlinx.protobuf)
+    api(libs.ktor.client.android)
+    api(libs.ktor.client.serialization)
+    api(libs.ktor.client.content.negotiation)
+    api(libs.ktor.serialization.kotlinx.json)
+    api(libs.ktor.serialization.kotlinx.protobuf)
 }

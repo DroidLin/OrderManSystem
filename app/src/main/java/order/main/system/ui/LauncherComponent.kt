@@ -1,4 +1,4 @@
-@file:Suppress("UndeclaredKoinUsage")
+@file:Suppress("UndeclaredKoinUsage", "REDUNDANT_ELSE_IN_WHEN")
 
 package order.main.system.ui
 
@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import order.main.foundation.KoinFoundation
 import order.main.foundation.ui.asState
@@ -39,15 +40,17 @@ fun LauncherComponent() {
         ) {
             when (val loadingState = loadingAccount.value) {
                 is LauncherUiState.Loading -> LoadingScreen(modifier = Modifier)
+                is LauncherUiState.Error -> LauncherFailureScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    showMessage = loadingState.throwable.message
+                )
+
                 is LauncherUiState.Success -> App(
                     userAccount = loadingState.data,
                     modifier = Modifier
                 )
 
-                is LauncherUiState.Error -> LauncherFailureScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    showMessage = loadingState.throwable.message,
-                )
+                else -> LauncherFailureScreen(modifier = Modifier.fillMaxSize(), showMessage = null)
             }
         }
     }
@@ -99,7 +102,8 @@ fun LauncherFailureScreen(
             Text(
                 modifier = Modifier,
                 text = showMessage ?: stringResource(R.string.string_unknown_error),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
             )
         }
     }

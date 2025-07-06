@@ -12,5 +12,6 @@ android {
 dependencies {
     implementation(project(":common:foundation"))
     implementation(project(":common:foundation-ui"))
+    implementation(project(":common:network"))
     implementation(project(":feature:user"))
 }

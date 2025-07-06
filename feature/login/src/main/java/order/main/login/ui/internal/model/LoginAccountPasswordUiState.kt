@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 
 @Stable
 data class LoginAccountPasswordUiState(
+    val isLoading: Boolean = false,
     val inputAccount: TextFieldValue = TextFieldValue(),
     val inputPassword: TextFieldValue = TextFieldValue(),
 )

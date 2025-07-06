@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material3.Button
@@ -29,7 +31,8 @@ internal fun LoginLauncherScreen(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -46,6 +49,7 @@ internal fun LoginLauncherScreen(
         ) {
             Text(text = stringResource(R.string.login_string_login_with_phone))
         }
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 

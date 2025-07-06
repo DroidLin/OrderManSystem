@@ -1,13 +1,17 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package order.main.user.internal
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.protobuf.ProtoNumber
 
 @Serializable
 internal data class PreferenceUserInfo(
-    val userId: Long,
-    val nickname: String,
-    val phone: String,
-    val language: String?
+    @ProtoNumber(1) val userId: Long,
+    @ProtoNumber(2) val nickname: String,
+    @ProtoNumber(3) val phone: String,
+    @ProtoNumber(4) val language: String?
 ) {
     companion object {
 

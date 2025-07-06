@@ -102,7 +102,7 @@ fun AppEventProvider(content: @Composable () -> Unit) {
     CompositionLocalProvider(value = LocalAppEventInstance provides appEventInstance, content = content)
 }
 
-class AppEventInstance() {
+class AppEventInstance {
 
     private val _eventChannel = Channel<Event>(capacity = 5)
 

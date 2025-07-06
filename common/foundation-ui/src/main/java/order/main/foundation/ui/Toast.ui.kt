@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -23,21 +25,26 @@ fun ToastUi(
     controller: NotificationController,
     modifier: Modifier = Modifier
 ) {
-    when (data) {
-        is Notification.Toast.ToastSnackBarMessage -> {
-            SnackBarToast(
-                data = data,
-                controller = controller,
-                modifier = modifier,
-                isAnimRunning = isAnimRunning,
-            )
-        }
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        when (data) {
+            is Notification.Toast.ToastSnackBarMessage -> {
+                SnackBarToast(
+                    data = data,
+                    controller = controller,
+                    modifier = Modifier,
+                    isAnimRunning = isAnimRunning,
+                )
+            }
 
-        is Notification.Toast.SystemToast -> {
-            SystemToast(
-                data = data,
-                modifier = modifier,
-            )
+            is Notification.Toast.SystemToast -> {
+                SystemToast(
+                    data = data,
+                    modifier = Modifier.widthIn(max = 240.dp),
+                )
+            }
         }
     }
 }
@@ -58,13 +65,13 @@ fun SnackBarToast(
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(all = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 modifier = Modifier.weight(1f),
                 text = data.showMessage,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -95,7 +102,7 @@ fun SystemToast(
 ) {
     Surface(
         modifier = modifier,
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.secondaryContainer,
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
     ) {
@@ -106,7 +113,8 @@ fun SystemToast(
             Text(
                 modifier = Modifier,
                 style = MaterialTheme.typography.bodyMedium,
-                text = data.showMessage
+                text = data.showMessage,
+                textAlign = TextAlign.Center
             )
         }
     }
