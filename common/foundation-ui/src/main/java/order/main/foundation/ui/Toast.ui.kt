@@ -106,12 +106,12 @@ fun SystemToast(
 ) {
     Surface(
         modifier = modifier,
-        shape = MaterialTheme.shapes.large,
+        shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.secondaryContainer,
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(

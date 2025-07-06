@@ -55,6 +55,7 @@ import order.main.foundation.ui.Event
 import order.main.foundation.ui.appEventInstance
 import order.main.foundation.ui.asState
 import order.main.foundation.ui.rememberDerivedStateOf
+import order.main.foundation.ui.showSystemToast
 import order.main.login.R
 import order.main.login.ui.internal.model.InputExtras
 import order.main.login.ui.internal.model.LoginAccountPasswordSideEffectState
@@ -142,6 +143,7 @@ internal fun LoginAccountScreen(
         )
         DoLoginButton(
             modifier = Modifier
+                .padding(top = 8.dp)
                 .widthIn(max = 360.dp)
                 .fillMaxWidth(0.5f),
             onClick = doLogin,
@@ -169,8 +171,9 @@ private fun DoLoginButton(
         if (loading) {
             CircularProgressIndicator(
                 modifier = Modifier
-                    .size(24.dp)
-                    .padding(end = 8.dp),
+                    .padding(end = 8.dp)
+                    .size(16.dp)
+                    .align(Alignment.CenterVertically),
                 strokeWidth = 3.dp,
                 strokeCap = StrokeCap.Round
             )
@@ -256,11 +259,7 @@ fun NavGraphBuilder.loginAccountScreen(backPress: () -> Unit) {
             doLogin = {
                 viewModel.doLogin(
                     showNotification = { message ->
-                        appEventInstance.tryPostEvent(
-                            event = Event.Toast.SnackBarToast(
-                                showMessage = message
-                            )
-                        )
+                        appEventInstance.showSystemToast(message = message)
                     }
                 )
             }

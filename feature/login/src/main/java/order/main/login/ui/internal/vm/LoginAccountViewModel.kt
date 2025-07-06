@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -80,6 +81,7 @@ internal class LoginAccountViewModel(
         this._uiState.update { it.copy(isLoading = true) }
         runOnIO {
             val ret = this.loginRepository.loginPassword(inputPhone, inputPassword)
+            delay(2000L)
             if (ret.isFailure) {
                 val message = ret.exceptionOrNull()?.message
                 if (!message.isNullOrEmpty()) {
