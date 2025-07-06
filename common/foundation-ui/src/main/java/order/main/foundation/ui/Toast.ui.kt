@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import order.main.foundation.ui.theme.FoundationTheme
 
 @Composable
 fun ToastUi(
@@ -65,11 +67,13 @@ fun SnackBarToast(
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
     ) {
         Row(
-            modifier = Modifier.padding(all = 16.dp),
+            modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .padding(vertical = 12.dp, horizontal = 16.dp)
+                    .weight(1f),
                 text = data.showMessage,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
@@ -98,7 +102,7 @@ fun SnackBarToast(
 @Composable
 fun SystemToast(
     data: Notification.Toast.SystemToast,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier,
@@ -107,7 +111,7 @@ fun SystemToast(
         border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
     ) {
         Box(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -117,5 +121,37 @@ fun SystemToast(
                 textAlign = TextAlign.Center
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun SystemToastPreview() {
+    FoundationTheme {
+        SystemToast(
+            data = Notification.Toast.SystemToast(
+                showMessage = "Hello World"
+            ),
+            modifier = Modifier
+        )
+    }
+}
+
+@Preview
+@Composable
+fun SnackBarToastPreview() {
+    FoundationTheme {
+        SnackBarToast(
+            data = Notification.Toast.ToastSnackBarMessage(
+                showMessage = "Hello World",
+                actionLabel = "确认"
+            ),
+            isAnimRunning = { false },
+            controller = object : NotificationController {
+                override fun performAction() {}
+                override fun dismiss() {}
+            },
+            modifier = Modifier
+        )
     }
 }
