@@ -30,17 +30,21 @@ kotlin {
 
 gradlePlugin {
     plugins {
-        register("CommonAndroidConfiguration") {
-            id = libs.plugins.common.android.configuration.get().pluginId
-            implementationClass = "CommonAndroidConfigurationsPlugin"
+        register("AndroidApplicationConfiguration") {
+            id = libs.plugins.android.application.configuration.get().pluginId
+            implementationClass = "AndroidApplicationConfigurationPlugin"
+        }
+        register("AndroidLibraryConfigurations") {
+            id = libs.plugins.android.library.configuration.get().pluginId
+            implementationClass = "AndroidLibraryConfigurationsPlugin"
         }
         register("KotlinKspConfiguration") {
             id = libs.plugins.ksp.configuration.get().pluginId
             implementationClass = "KotlinKspConfigurationPlugin"
         }
-        register("ComposeCompilerConfiguration") {
+        register("ComposeDependencyConfigurationPlugin") {
             id = libs.plugins.compose.compiler.configuration.get().pluginId
-            implementationClass = "ComposeCompilerConfigurationPlugin"
+            implementationClass = "ComposeDependencyConfigurationPlugin"
         }
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -205,6 +206,7 @@ private fun LayerNotificationAreas(
         NotificationHost(
             modifier = Modifier
                 .widthIn(max = 640.dp)
+                .heightIn(min = 80.dp)
                 .fillMaxWidth(),
             notificationHostState = notificationHostState,
         )

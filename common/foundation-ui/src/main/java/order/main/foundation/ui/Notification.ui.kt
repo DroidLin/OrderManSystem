@@ -56,6 +56,7 @@ class NotificationMetadata(
     }
 }
 
+@Stable
 class NotificationHostState {
 
     private val _mutex = Mutex()
@@ -113,7 +114,7 @@ sealed class AppNotification {
     ) : AppNotification()
 }
 
-private const val DURATION = 600
+private const val DURATION = 400
 
 private val EnterTransition =
     slideInVertically(animationSpec = tween(DURATION)) { -it } +
@@ -157,6 +158,7 @@ fun NotificationHost(
             return@AnimatedVisibility
         }
         AnimatedContent(
+            modifier = Modifier,
             targetState = notification,
             contentAlignment = Alignment.Center,
             transitionSpec = {
@@ -185,9 +187,7 @@ fun NotificationContent(
     Surface(
         modifier = modifier,
         onClick = {
-            if (!isRunning()) {
-                onPress()
-            }
+            if (!isRunning()) onPress()
         },
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.secondaryContainer,

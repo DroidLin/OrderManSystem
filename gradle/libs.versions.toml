@@ -158,7 +158,6 @@ room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", vers
 [plugins]
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-application = { id = "com.android.application", version.ref = "agp" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 
 google-dev-ksp = { id = "com.google.devtools.ksp", version.ref = "kspSymbol" }
 google-gms-service = { id = "com.google.gms.google-services", version.ref = "googleGmsServicePlugin" }
@@ -172,6 +171,7 @@ baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprof
 android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
-common-android-configuration = { id = "common.android.configuration" }
+android-application-configuration = { id = "android.application.configuration" }
+android-library-configuration = { id = "android.library.configuration" }
 ksp-configuration = { id = "ksp.configuration" }
 compose-compiler-configuration = { id = "compose.compiler.configuration" }
