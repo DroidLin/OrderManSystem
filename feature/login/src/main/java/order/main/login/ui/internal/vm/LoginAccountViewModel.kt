@@ -12,18 +12,18 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import order.main.foundation.ioScope
 import order.main.login.R
-import order.main.login.ui.internal.LoginAccountScreenRoute
+import order.main.login.ui.LoginAccountScreenRoute
 import order.main.login.ui.internal.model.InputExtras
 import order.main.login.ui.internal.model.LoginAccountPasswordSideEffectState
 import order.main.login.ui.internal.model.LoginAccountPasswordUiState
-import order.main.user.UserDataLocalRepository
+import order.main.user.UserAccountLocalRepository
 
 @SuppressLint("StaticFieldLeak")
 internal class LoginAccountViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val context: Context,
     private val loginAccountScreenRoute: LoginAccountScreenRoute,
-    private val userDataLocalRepository: UserDataLocalRepository
+    private val userAccountLocalRepository: UserAccountLocalRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(

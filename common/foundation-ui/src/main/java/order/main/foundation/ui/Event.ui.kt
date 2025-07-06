@@ -1,5 +1,10 @@
 package order.main.foundation.ui
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -11,11 +16,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -47,27 +47,37 @@ interface Event {
 
     val onFinished: (ToastActionResult) -> Unit
 
-    data class Toast(
-        val showMessage: String,
-        val actionLabel: String? = null,
-        override val onFinished: (ToastActionResult) -> Unit = {}
-    ) : Event
+    sealed class Toast : Event {
 
-    sealed class Notification : Event
+        data class SystemToast(
+            val showMessage: String,
+            override val onFinished: (ToastActionResult) -> Unit = {},
+        ) : Toast()
 
-    data class SimpleNotification(
-        val title: String,
-        val subTitle: String? = null,
-        val icon: String? = null,
-        override val onFinished: (ToastActionResult) -> Unit
-    ) : Notification()
+        data class SnackBarToast(
+            val showMessage: String,
+            val actionLabel: String? = null,
+            override val onFinished: (ToastActionResult) -> Unit = {}
+        ) : Toast()
 
-    data class RichNotification(
-        val title: AnnotatedString,
-        val subTitle: AnnotatedString? = null,
-        val icon: String? = null,
-        override val onFinished: (ToastActionResult) -> Unit
-    ) : Notification()
+    }
+
+    sealed class Notification : Event {
+
+        data class SimpleNotification(
+            val title: String,
+            val subTitle: String? = null,
+            val icon: String? = null,
+            override val onFinished: (ToastActionResult) -> Unit
+        ) : Notification()
+
+        data class RichNotification(
+            val title: AnnotatedString,
+            val subTitle: AnnotatedString? = null,
+            val icon: String? = null,
+            override val onFinished: (ToastActionResult) -> Unit
+        ) : Notification()
+    }
 
 }
 
@@ -116,12 +126,16 @@ fun LayerEventSurface(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    val notificationHostState = remember { NotificationHostState() }
-    val snackBarHostState = remember { SnackbarHostState() }
+    val topNotificationHostState = remember {
+        NotificationHostState<Notification.TopNotification>()
+    }
+    val bottomToastNotificationHostState = remember {
+        NotificationHostState<Notification.Toast>()
+    }
     AppEventProvider {
         LayerEventController(
-            notificationHostState = notificationHostState,
-            snackBarHostState = snackBarHostState
+            topNotificationHostState = topNotificationHostState,
+            bottomToastNotificationHostState = bottomToastNotificationHostState
         )
         Box(
             modifier = modifier,
@@ -137,7 +151,7 @@ fun LayerEventSurface(
                     .statusBarsPadding()
                     .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
                     .align(Alignment.TopCenter),
-                notificationHostState = notificationHostState,
+                notificationHostState = topNotificationHostState,
             )
 
             // bottom toast
@@ -147,7 +161,7 @@ fun LayerEventSurface(
                     .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal))
                     .navigationBarsPadding()
                     .align(Alignment.BottomCenter),
-                snackBarHostState = snackBarHostState,
+                notificationHostState = bottomToastNotificationHostState,
             )
         }
     }
@@ -158,45 +172,65 @@ fun LayerEventSurface(
  */
 @Composable
 private fun LayerEventController(
-    notificationHostState: NotificationHostState,
-    snackBarHostState: SnackbarHostState
+    topNotificationHostState: NotificationHostState<Notification.TopNotification>,
+    bottomToastNotificationHostState: NotificationHostState<Notification.Toast>,
 ) {
     EventConsumer(appEventInstance.eventFlow) { event ->
-        var finishResult = ToastActionResult.Dismissed
-        when (event) {
-            is Event.Toast -> {
-                val ret = snackBarHostState.showSnackbar(
-                    message = event.showMessage,
-                    actionLabel = event.actionLabel,
-                    withDismissAction = event.actionLabel.isNullOrEmpty()
-                )
-                finishResult = when (ret) {
-                    SnackbarResult.ActionPerformed -> ToastActionResult.ActionPerformed
-                    else -> ToastActionResult.Dismissed
-                }
-            }
-
-            is Event.SimpleNotification -> {
-                val ret = notificationHostState.postNotification(
-                    notification = AppNotification.Simple(
+        val finishResult = when (event) {
+            is Event.Notification.SimpleNotification -> {
+                topNotificationHostState.postNotification(
+                    notification = Notification.TopNotification.Simple(
                         title = event.title,
                         subTitle = event.subTitle,
                         icon = event.icon
                     )
                 )
-                finishResult = when (ret) {
-                    AppNotificationResult.ActionPerformed -> ToastActionResult.ActionPerformed
-                    else -> ToastActionResult.Dismissed
-                }
+            }
+
+            is Event.Toast.SnackBarToast -> {
+                bottomToastNotificationHostState.postNotification(
+                    Notification.Toast.ToastSnackBarMessage(
+                        showMessage = event.showMessage,
+                        actionLabel = event.actionLabel
+                    ),
+                    if (event.actionLabel == null) {
+                        NotificationDuration.Short
+                    } else NotificationDuration.Long
+                )
+            }
+
+            is Event.Toast.SystemToast -> {
+                bottomToastNotificationHostState.postNotification(
+                    notification = Notification.Toast.SystemToast(showMessage = event.showMessage)
+                )
+            }
+
+            else -> NotificationResult.Dismissed
+        }.let {
+            when (it) {
+                NotificationResult.ActionPerformed -> ToastActionResult.ActionPerformed
+                else -> ToastActionResult.Dismissed
             }
         }
         event.onFinished(finishResult)
     }
 }
 
+private const val DURATION = 400
+
+private val NotificationEnterTransition =
+    slideInVertically(animationSpec = tween(DURATION)) { -it } +
+            fadeIn(animationSpec = tween(DURATION))
+private val NotificationExitTransition =
+    slideOutVertically(animationSpec = tween(DURATION)) { -it } +
+            fadeOut(animationSpec = tween(DURATION))
+private val NotificationPopEnterTransition =
+    slideInVertically(animationSpec = tween(DURATION, DURATION)) { -it } +
+            fadeIn(animationSpec = tween(DURATION, DURATION))
+
 @Composable
 private fun LayerNotificationAreas(
-    notificationHostState: NotificationHostState,
+    notificationHostState: NotificationHostState<Notification.TopNotification>,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -209,33 +243,47 @@ private fun LayerNotificationAreas(
                 .heightIn(min = 80.dp)
                 .fillMaxWidth(),
             notificationHostState = notificationHostState,
-        )
+            enterTransition = NotificationEnterTransition,
+            exitTransition = NotificationExitTransition,
+            popEnterTransition = NotificationPopEnterTransition,
+            popExitTransition = NotificationExitTransition
+        ) {
+            DefaultNotification(it)
+        }
     }
 }
 
+private val ToastEnterTransition =
+    slideInVertically(animationSpec = tween(DURATION)) { it } +
+            fadeIn(animationSpec = tween(DURATION))
+private val ToastExitTransition =
+    slideOutVertically(animationSpec = tween(DURATION)) { it } +
+            fadeOut(animationSpec = tween(DURATION))
+private val ToastPopEnterTransition =
+    slideInVertically(animationSpec = tween(DURATION, DURATION)) { it } +
+            fadeIn(animationSpec = tween(DURATION, DURATION))
+
 @Composable
 private fun LayerSnackBarAreas(
-    snackBarHostState: SnackbarHostState,
+    notificationHostState: NotificationHostState<Notification.Toast>,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        SnackbarHost(
-            modifier = Modifier,
-            hostState = snackBarHostState,
-            snackbar = { data ->
-                Snackbar(
-                    snackbarData = data,
-                    shape = MaterialTheme.shapes.large,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    actionColor = MaterialTheme.colorScheme.primary,
-                    actionContentColor = MaterialTheme.colorScheme.primary,
-                    dismissActionContentColor = MaterialTheme.colorScheme.primary
-                )
-            }
-        )
+        NotificationHost(
+            modifier = Modifier
+                .widthIn(max = 640.dp)
+                .heightIn(min = 80.dp)
+                .fillMaxWidth(),
+            notificationHostState = notificationHostState,
+            enterTransition = ToastEnterTransition,
+            exitTransition = ToastExitTransition,
+            popEnterTransition = ToastPopEnterTransition,
+            popExitTransition = ToastExitTransition
+        ) {
+            DefaultNotification(it)
+        }
     }
 }

@@ -1,7 +1,10 @@
 package order.main.foundation.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -9,14 +12,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -24,9 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.delay
@@ -37,37 +33,49 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.resume
 
-class NotificationMetadata(
-    val notification: AppNotification,
-    val duration: AppNotificationDuration,
-    private val continuation: CancellableContinuation<AppNotificationResult>
-) {
+interface NotificationController {
 
-    fun performAction() {
+    fun performAction()
+
+    fun dismiss()
+}
+
+interface NotificationVisual<T> : NotificationController {
+
+    val notification: T
+}
+
+class NotificationMetadata<T>(
+    override val notification: T,
+    val duration: NotificationDuration,
+    private val continuation: CancellableContinuation<NotificationResult>
+) : NotificationVisual<T> {
+
+    override fun performAction() {
         if (this.continuation.isActive) {
-            this.continuation.resume(AppNotificationResult.ActionPerformed)
+            this.continuation.resume(NotificationResult.ActionPerformed)
         }
     }
 
-    fun dismiss() {
+    override fun dismiss() {
         if (this.continuation.isActive) {
-            this.continuation.resume(AppNotificationResult.Dismissed)
+            this.continuation.resume(NotificationResult.Dismissed)
         }
     }
 }
 
 @Stable
-class NotificationHostState {
+class NotificationHostState<T : Any> {
 
     private val _mutex = Mutex()
 
-    private val _notificationMetadata = MutableStateFlow<NotificationMetadata?>(null)
+    private val _notificationMetadata = MutableStateFlow<NotificationMetadata<T>?>(null)
     val notificationMetadata = this._notificationMetadata.asStateFlow()
 
     suspend fun postNotification(
-        notification: AppNotification,
-        duration: AppNotificationDuration = AppNotificationDuration.Short
-    ): AppNotificationResult {
+        notification: T,
+        duration: NotificationDuration = NotificationDuration.Short
+    ): NotificationResult {
         return this._mutex.withLock {
             try {
                 suspendCancellableCoroutine { continuation ->
@@ -81,56 +89,64 @@ class NotificationHostState {
     }
 }
 
-enum class AppNotificationDuration {
+enum class NotificationDuration {
     Short,
     Long,
 }
 
-enum class AppNotificationResult {
+enum class NotificationResult {
     Dismissed,
     ActionPerformed
 }
 
-internal fun AppNotificationDuration.toMilliSeconds(): Long {
+internal fun NotificationDuration.toMilliSeconds(): Long {
     return when (this) {
-        AppNotificationDuration.Long -> 10_000L
+        NotificationDuration.Long -> 10_000L
         else -> 5_000L
     }
 }
 
 @Stable
-sealed class AppNotification {
+sealed class Notification {
 
-    data class Simple(
-        val title: String,
-        val subTitle: String? = null,
-        val icon: String? = null
-    ) : AppNotification()
+    sealed class Toast() : Notification() {
+        data class SystemToast(
+            val showMessage: String
+        ) : Toast()
 
-    data class Rich(
-        val title: AnnotatedString,
-        val subTitle: AnnotatedString? = null,
-        val icon: @Composable () -> Unit,
-    ) : AppNotification()
+        data class ToastSnackBarMessage(
+            val showMessage: String,
+            val actionLabel: String? = null
+        ) : Toast()
+    }
+
+    sealed class TopNotification() : Notification() {
+
+        data class Simple(
+            val title: String,
+            val subTitle: String? = null,
+            val icon: String? = null
+        ) : TopNotification()
+
+        data class Rich(
+            val title: AnnotatedString,
+            val subTitle: AnnotatedString? = null,
+            val icon: @Composable () -> Unit,
+        ) : TopNotification()
+    }
 }
 
-private const val DURATION = 400
-
-private val EnterTransition =
-    slideInVertically(animationSpec = tween(DURATION)) { -it } +
-            fadeIn(animationSpec = tween(DURATION))
-private val ExitTransition =
-    slideOutVertically(animationSpec = tween(DURATION)) { -it } +
-            fadeOut(animationSpec = tween(DURATION))
-
-private val PopEnterTransition =
-    slideInVertically(animationSpec = tween(DURATION, DURATION)) { -it } +
-            fadeIn(animationSpec = tween(DURATION, DURATION))
-
 @Composable
-fun NotificationHost(
-    notificationHostState: NotificationHostState,
+fun <T : Any> NotificationHost(
+    notificationHostState: NotificationHostState<T>,
     modifier: Modifier = Modifier,
+    enterTransition: EnterTransition = fadeIn(),
+    exitTransition: ExitTransition = fadeOut(),
+    popEnterTransition: EnterTransition = enterTransition,
+    popExitTransition: ExitTransition = exitTransition,
+    notification: @Composable AnimatedContentScope.(NotificationMetadata<T>) -> Unit = {
+        DefaultNotification(it)
+    },
 ) {
     val currentNotificationMetadataState = notificationHostState.notificationMetadata.asState()
     val visibleState = remember { MutableTransitionState(false) }
@@ -146,10 +162,10 @@ fun NotificationHost(
     AnimatedVisibility(
         modifier = modifier,
         visibleState = visibleState,
-        enter = EnterTransition,
-        exit = ExitTransition
+        enter = enterTransition,
+        exit = exitTransition
     ) {
-        val notificationState = remember { mutableStateOf<NotificationMetadata?>(null) }
+        val notificationState = remember { mutableStateOf<NotificationMetadata<T>?>(null) }
         if (currentNotificationMetadata != null && notificationState.value != currentNotificationMetadata) {
             notificationState.value = currentNotificationMetadata
         }
@@ -162,79 +178,55 @@ fun NotificationHost(
             targetState = notification,
             contentAlignment = Alignment.Center,
             transitionSpec = {
-                PopEnterTransition togetherWith ExitTransition
+                popEnterTransition togetherWith popExitTransition
             },
             label = "app_build_in_notification_animation_content"
         ) { notification ->
-            NotificationContent(
-                modifier = Modifier
-                    .padding(all = 16.dp),
-                notification = notification.notification,
-                onPress = notification::performAction,
-                isRunning = this.transition::isRunning
-            )
+            notification(notification)
         }
     }
 }
 
 @Composable
-fun NotificationContent(
-    notification: AppNotification,
-    isRunning: () -> Boolean,
-    onPress: () -> Unit,
+fun <T> AnimatedContentScope.DefaultNotification(
+    metadata: NotificationMetadata<T>,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    NotificationContent(
+        modifier = modifier.padding(16.dp),
+        metadata = metadata,
+        notification = metadata.notification,
+        isAnimRunning = this.transition::isRunning
+    )
+}
+
+@Composable
+fun <T> NotificationContent(
+    metadata: NotificationMetadata<T>,
+    notification: T,
+    isAnimRunning: () -> Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Box(
         modifier = modifier,
-        onClick = {
-            if (!isRunning()) onPress()
-        },
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shadowElevation = 6.dp,
-        border = BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.1f))
+        contentAlignment = Alignment.Center
     ) {
         when (notification) {
-            is AppNotification.Simple -> SimpleNotificationContent(
-                simpleNotification = notification,
-                modifier = Modifier.padding(all = 16.dp)
+            is Notification.TopNotification -> TopNotificationUi(
+                data = notification,
+                controller = metadata,
+                isAnimRunning = isAnimRunning,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            is Notification.Toast -> ToastUi(
+                data = notification,
+                controller = metadata,
+                isAnimRunning = isAnimRunning,
+                modifier = Modifier
             )
 
             else -> {}
-        }
-    }
-}
-
-@Composable
-fun SimpleNotificationContent(
-    simpleNotification: AppNotification.Simple,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                modifier = Modifier,
-                text = simpleNotification.title,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            val subTitle = simpleNotification.subTitle
-            if (!subTitle.isNullOrEmpty()) {
-                Text(
-                    modifier = Modifier,
-                    text = subTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
         }
     }
 }

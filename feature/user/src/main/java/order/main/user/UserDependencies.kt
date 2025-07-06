@@ -5,9 +5,11 @@ import kotlinx.coroutines.CoroutineScope
 import order.main.foundation.AndroidContext
 import order.main.foundation.AppLifecycleCoroutineScope
 import order.main.user.internal.LocalUserDataStore
-import order.main.user.internal.MyLocalUserDataRepository
+import order.main.user.internal.LocalUserInfoDataStore
+import order.main.user.internal.MyLocalUserAccountRepository
+import order.main.user.internal.MyLocalUserInfoRepository
 import order.main.user.qualifier.MyUserDataRepository
-import order.main.user.tests.TestMyLocalUserDataRepository
+import order.main.user.tests.TestMyLocalUserAccountRepository
 import order.main.user.tests.TestUserDataRepository
 import org.jetbrains.annotations.TestOnly
 import org.koin.core.annotation.Factory
@@ -25,20 +27,33 @@ class UserDependencies {
         coroutineScope: CoroutineScope
     ): LocalUserDataStore = LocalUserDataStore(context, coroutineScope)
 
-    @Factory(binds = [UserDataLocalRepository::class, MyLocalUserDataRepository::class])
+    @Factory(binds = [UserAccountLocalRepository::class, MyLocalUserAccountRepository::class])
     internal fun userLocalRepository(
         dataStore: LocalUserDataStore
-    ): UserDataLocalRepository = MyLocalUserDataRepository(dataStore)
+    ): UserAccountLocalRepository = MyLocalUserAccountRepository(dataStore)
+
+    @Singleton
+    internal fun localUserInfoDataStore(
+        @AndroidContext
+        context: Context,
+        @AppLifecycleCoroutineScope
+        coroutineScope: CoroutineScope,
+    ): LocalUserInfoDataStore = LocalUserInfoDataStore(context, coroutineScope)
+
+    @Factory(binds = [UserInfoLocalRepository::class, MyLocalUserAccountRepository::class])
+    internal fun userInfoLocalRepository(
+        dataStore: LocalUserInfoDataStore
+    ): UserInfoLocalRepository = MyLocalUserInfoRepository(dataStore)
 
     @MyUserDataRepository
-    @Factory(binds = [UserDataLocalRepository::class, MyLocalUserDataRepository::class])
+    @Factory(binds = [UserAccountLocalRepository::class, MyLocalUserAccountRepository::class])
     internal fun myUserLocalRepository(
         dataStore: LocalUserDataStore
-    ): UserDataLocalRepository = MyLocalUserDataRepository(dataStore)
+    ): UserAccountLocalRepository = MyLocalUserAccountRepository(dataStore)
 
     @TestOnly
     @TestUserDataRepository
-    @Factory(binds = [UserDataLocalRepository::class, TestMyLocalUserDataRepository::class])
+    @Factory(binds = [UserAccountLocalRepository::class, TestMyLocalUserAccountRepository::class])
     internal fun testUserLocalRepository(
-    ): TestMyLocalUserDataRepository = TestMyLocalUserDataRepository()
+    ): TestMyLocalUserAccountRepository = TestMyLocalUserAccountRepository()
 }

@@ -5,7 +5,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import order.main.foundation.AndroidContext
 import order.main.login.ui.internal.vm.LoginAccountViewModel
-import order.main.user.UserDataLocalRepository
+import order.main.user.UserAccountLocalRepository
 import order.main.user.UserDependencies
 import order.main.user.qualifier.MyUserDataRepository
 import org.koin.android.annotation.KoinViewModel
@@ -24,11 +24,11 @@ class LoginModule {
         @AndroidContext
         context: Context,
         @MyUserDataRepository
-        userDataLocalRepository: UserDataLocalRepository
+        userAccountLocalRepository: UserAccountLocalRepository
     ): LoginAccountViewModel = LoginAccountViewModel(
         savedStateHandle = savedStateHandle,
         context = context,
         loginAccountScreenRoute = savedStateHandle.toRoute(),
-        userDataLocalRepository = userDataLocalRepository
+        userAccountLocalRepository = userAccountLocalRepository
     )
 }

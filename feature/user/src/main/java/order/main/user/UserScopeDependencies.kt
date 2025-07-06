@@ -3,7 +3,7 @@ package order.main.user
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import order.main.user.data.UserData
+import order.main.user.data.UserAccount
 import order.main.user.qualifier.UserScopedCoroutineScope
 import order.main.user.qualifier.UserScopedData
 import org.koin.core.annotation.Module
@@ -19,15 +19,15 @@ class UserScopeDependencies {
 
     @UserScopedData
     @Scope(value = AppUserScope::class)
-    @Scoped(binds = [UserData::class])
+    @Scoped(binds = [UserAccount::class])
     fun userScopedData(
         @Property(KEY_PROPERTY_USER_DATA)
-        userData: UserData
-    ): UserData = userData
+        userAccount: UserAccount
+    ): UserAccount = userAccount
 
     @Scope(value = AppUserScope::class)
-    @Scoped(binds = [UserData::class])
-    fun userData(@UserScopedData userData: UserData): UserData = userData
+    @Scoped(binds = [UserAccount::class])
+    fun userData(@UserScopedData userAccount: UserAccount): UserAccount = userAccount
 
     @UserScopedCoroutineScope
     @Scope(value = AppUserScope::class)

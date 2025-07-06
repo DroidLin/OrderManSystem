@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import order.main.login.ui.internal.LoginLauncherRoute
 
 @Composable
 internal fun LoginLauncherScreen(
@@ -15,7 +14,9 @@ internal fun LoginLauncherScreen(
 
 }
 
-fun NavGraphBuilder.LoginLauncherScreen() {
+fun NavGraphBuilder.loginLauncherScreen(
+    navigateToLoginAccount: () -> Unit,
+) {
     composable<LoginLauncherRoute> {
         LoginLauncherScreen(
             modifier = Modifier,

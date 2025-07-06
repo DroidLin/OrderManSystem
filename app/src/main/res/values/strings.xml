@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">OrderManSystem</string>
+
+    <string name="string_loading">加载中…</string>
+    <string name="string_unknown_error">未知错误</string>
+    <string name="string_btn_reset">重置</string>
 </resources>

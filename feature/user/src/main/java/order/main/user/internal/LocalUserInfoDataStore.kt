@@ -3,14 +3,13 @@ package order.main.user.internal
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import order.main.datastore.AbstractDataStore
-import order.main.foundation.DataStoreNames
 
-internal class LocalUserDataStore(
+internal class LocalUserInfoDataStore(
     context: Context,
     coroutineScope: CoroutineScope
-) : AbstractDataStore<PreferenceUserData>(
+) : AbstractDataStore<PreferenceUserInfo>(
     context = context,
-    initValue = PreferenceUserData.Empty,
-    fileName = DataStoreNames.FILE_USER_DATA_STORE,
+    initValue = PreferenceUserInfo.Empty,
+    fileName = "local_user_preference_info.pb",
     coroutineScope = coroutineScope
 )

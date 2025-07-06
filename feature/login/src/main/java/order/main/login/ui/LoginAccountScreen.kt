@@ -5,10 +5,10 @@ package order.main.login.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import order.main.foundation.ui.asState
-import order.main.login.ui.internal.LoginAccountScreenRoute
 import order.main.login.ui.internal.model.LoginAccountPasswordSideEffectState
 import order.main.login.ui.internal.model.LoginAccountPasswordUiState
 import order.main.login.ui.internal.vm.LoginAccountViewModel
@@ -27,7 +27,17 @@ internal fun LoginAccountScreen(
 
 }
 
-fun NavGraphBuilder.LoginAccountScreen(backPress: () -> Unit) {
+fun NavController.navigateToLoginAccount(inputAccount: String? = null) {
+    navigate(LoginAccountScreenRoute(inputAccount)) {
+        popUpTo<LoginAccountScreenRoute> {
+            saveState = false
+            inclusive = false
+        }
+        launchSingleTop = true
+    }
+}
+
+fun NavGraphBuilder.loginAccountScreen(backPress: () -> Unit) {
     composable<LoginAccountScreenRoute> {
         val viewModel = koinViewModel<LoginAccountViewModel>()
         val uiState = viewModel.uiState.asState()

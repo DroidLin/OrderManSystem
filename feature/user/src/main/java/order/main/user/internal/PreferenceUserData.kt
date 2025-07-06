@@ -4,5 +4,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class PreferenceUserData(
-    val id: Long
-)
+    val userId: Long,
+    val accessToken: String,
+) {
+
+    companion object {
+
+        val Empty = PreferenceUserData(
+            userId = 0L,
+            accessToken = "",
+        )
+    }
+}
