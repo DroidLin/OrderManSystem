@@ -28,4 +28,5 @@ dependencies {
 
     implementation(project(":feature:login"))
     implementation(project(":feature:user"))
+    implementation(project(":feature:home"))
 }

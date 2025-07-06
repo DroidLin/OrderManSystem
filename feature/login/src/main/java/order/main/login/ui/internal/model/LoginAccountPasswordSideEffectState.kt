@@ -11,5 +11,5 @@ data class LoginAccountPasswordSideEffectState(
 
 data class InputExtras(
     val isError: Boolean = false,
-    val errorMessage: String? = null
+    val message: String? = null
 )

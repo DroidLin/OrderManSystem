@@ -2,6 +2,7 @@
 
 package order.main.system.ui
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import order.main.foundation.ui.LayerEventSurface
@@ -17,7 +18,10 @@ fun App(
 ) {
     GlobalAppStateProvider(globalAppState = rememberGlobalAppState(userAccount = userAccount)) {
         LayerEventSurface(modifier = modifier) {
-            AppNavHost(navController = globalAppState.navController)
+            AppNavHost(
+                modifier = Modifier.fillMaxSize(),
+                navController = globalAppState.navController
+            )
         }
     }
 }

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import order.main.foundation.ioScope
 import order.main.login.R
 import order.main.login.ui.LoginAccountScreenRoute
@@ -43,7 +44,7 @@ internal class LoginAccountViewModel(
                 when {
                     passwordText.length < 8 -> InputExtras(
                         isError = true,
-                        errorMessage = context.getString(R.string.string_login_password_at_least_8)
+                        message = context.getString(R.string.string_login_password_at_least_8)
                     )
 
                     else -> null
@@ -58,11 +59,11 @@ internal class LoginAccountViewModel(
         .stateIn(ioScope, SharingStarted.WhileSubscribed(), LoginAccountPasswordSideEffectState())
 
     fun updateInputAccount(value: TextFieldValue) {
-
+        this._uiState.update { it.copy(inputAccount = value) }
     }
 
     fun updateInputPassword(value: TextFieldValue) {
-
+        this._uiState.update { it.copy(inputPassword = value) }
     }
 
     fun doLogin() {

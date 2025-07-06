@@ -5,7 +5,9 @@ package order.main.system
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import order.main.foundation.ui.ActivityProvider
+import order.main.foundation.ui.SystemBarComponent
 import order.main.foundation.ui.enableEdgeToEdge
 import order.main.system.ui.LauncherComponent
 
@@ -16,6 +18,7 @@ class LauncherActivity : ComponentActivity() {
         this.enableEdgeToEdge()
         setContent {
             ActivityProvider(activity = this) {
+                SystemBarComponent(isLightMode = !isSystemInDarkTheme())
                 LauncherComponent()
             }
         }

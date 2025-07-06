@@ -7,11 +7,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import order.main.home.ui.homeScreen
 import order.main.login.ui.LoginNavigationRoute
 import order.main.login.ui.loginNavigation
 import order.main.login.ui.navigateToLoginAccount
 import order.main.user.globalAppState
 import order.main.user.isLogin
+
+private const val duration = 500
+
+private val enterTransition = fadeIn(tween(durationMillis = duration, delayMillis = duration))
+private val exitTransition = fadeOut(tween(durationMillis = duration))
 
 @Composable
 fun AppNavHost(
@@ -26,14 +32,17 @@ fun AppNavHost(
         } else {
             LoginNavigationRoute
         },
-        enterTransition = { fadeIn(tween(delayMillis = 300)) },
-        exitTransition = { fadeOut() },
-        popEnterTransition = { fadeIn(tween(delayMillis = 300)) },
-        popExitTransition = { fadeOut() },
+        enterTransition = { enterTransition },
+        exitTransition = { exitTransition },
+        popEnterTransition = { enterTransition },
+        popExitTransition = { exitTransition },
     ) {
         loginNavigation(
             backPress = navController::navigateUp,
             navigateToLoginAccount = navController::navigateToLoginAccount
+        )
+        homeScreen(
+            doRealLogout = {}
         )
     }
 }
