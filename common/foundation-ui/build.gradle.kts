@@ -27,5 +27,11 @@ dependencies {
     // navigation
     api(libs.jetpack.navigation)
 
+    // navigation3
+//    api(libs.navigation3.runtime)
+//    api(libs.navigation3.ui)
+//    api(libs.navigation3.viewmodel)
+//    api(libs.navigation3.material3)
+
     implementation(project(":common:foundation"))
 }

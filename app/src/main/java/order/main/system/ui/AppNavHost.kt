@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import order.main.home.ui.homeScreen
-import order.main.login.ui.LoginNavigationRoute
+import order.main.login.ui.route.LoginNavigationRoute
 import order.main.login.ui.loginNavigation
 import order.main.login.ui.navigateToLoginAccount
 import order.main.user.globalAppState

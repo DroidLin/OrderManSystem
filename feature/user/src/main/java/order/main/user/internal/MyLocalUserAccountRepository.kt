@@ -12,7 +12,7 @@ internal class MyLocalUserAccountRepository(
     override val userAccount: Flow<UserAccount> = dataStore.data
         .map { it.toUserData() }
 
-    override suspend fun updateUserData(userAccount: UserAccount) {
+    override suspend fun updateUserAccount(userAccount: UserAccount) {
         dataStore.updateData {
             it.copy(
                 userId = userAccount.userId,

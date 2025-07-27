@@ -7,6 +7,7 @@ import order.main.login.LoginModule
 import order.main.network.NetworkApiDependency
 import order.main.system.ui.AppLauncherViewModel
 import order.main.user.UserAccountLocalRepository
+import order.main.user.UserInfoLocalRepository
 import order.main.user.qualifier.MyUserDataRepository
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.Module
@@ -25,6 +26,7 @@ class AppLauncherModules {
     @KoinViewModel
     fun appLauncherViewModel(
         @MyUserDataRepository
-        userAccountRepository: UserAccountLocalRepository
+        userAccountRepository: UserAccountLocalRepository,
+        userInfoRepository: UserInfoLocalRepository
     ): AppLauncherViewModel = AppLauncherViewModel(userAccountRepository)
 }

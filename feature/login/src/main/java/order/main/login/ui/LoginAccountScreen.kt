@@ -5,13 +5,9 @@ package order.main.login.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -25,7 +21,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -42,7 +37,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -51,17 +45,19 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.delay
 import order.main.foundation.ui.AppIconButton
-import order.main.foundation.ui.Event
+import order.main.foundation.ui.FoundationPasswordTextField
+import order.main.foundation.ui.FoundationTextField
 import order.main.foundation.ui.appEventInstance
 import order.main.foundation.ui.asState
+import order.main.foundation.ui.koinViewModel
 import order.main.foundation.ui.rememberDerivedStateOf
 import order.main.foundation.ui.showSystemToast
 import order.main.login.R
-import order.main.login.ui.internal.model.InputExtras
-import order.main.login.ui.internal.model.LoginAccountPasswordSideEffectState
-import order.main.login.ui.internal.model.LoginAccountPasswordUiState
-import order.main.login.ui.internal.vm.LoginAccountViewModel
-import org.koin.androidx.compose.koinViewModel
+import order.main.login.internal.ui.data.InputExtras
+import order.main.login.internal.ui.data.LoginAccountPasswordSideEffectState
+import order.main.login.internal.ui.data.LoginAccountPasswordUiState
+import order.main.login.internal.ui.vm.LoginAccountViewModel
+import order.main.login.ui.route.LoginAccountScreenRoute
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,7 +116,7 @@ internal fun LoginAccountScreen(
                 onNext = { focusManager.moveFocus(FocusDirection.Down) }
             )
         )
-        AppTextField(
+        AppPasswordTextField(
             modifier = Modifier
                 .padding(top = 8.dp)
                 .widthIn(max = 600.dp)
@@ -139,7 +135,6 @@ internal fun LoginAccountScreen(
             keyboardActions = KeyboardActions(
                 onDone = { doLogin() }
             ),
-            visualTransformation = PasswordVisualTransformation()
         )
         DoLoginButton(
             modifier = Modifier
@@ -197,18 +192,17 @@ private fun AppTextField(
     minLines: Int = 1,
     requestFocus: Boolean = false,
 ) {
-    val input by rememberDerivedStateOf(value)
-    val extras by rememberDerivedStateOf(inputExtras)
-    val valueExtras = extras
-    OutlinedTextField(
-        value = input,
+    val inputValue by rememberDerivedStateOf(value)
+    val extra by rememberDerivedStateOf(inputExtras)
+    FoundationTextField(
+        value = inputValue,
         onValueChange = onValueChanged,
-        label = (valueExtras?.message ?: label).let { message ->
+        label = (extra?.message ?: label).let { message ->
             {
                 Text(text = message)
             }
         },
-        isError = valueExtras?.isError ?: false,
+        isError = extra?.isError ?: false,
         modifier = modifier.run {
             if (requestFocus) {
                 val focusRequester = remember { FocusRequester() }
@@ -220,6 +214,51 @@ private fun AppTextField(
             } else this
         },
         visualTransformation = visualTransformation,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        shape = MaterialTheme.shapes.medium,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        minLines = minLines,
+    )
+}
+
+@Composable
+private fun AppPasswordTextField(
+    value: () -> TextFieldValue,
+    inputExtras: () -> InputExtras?,
+    onValueChanged: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    label: String = "",
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = false,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
+    requestFocus: Boolean = false,
+) {
+    val inputValue by rememberDerivedStateOf(value)
+    val extra by rememberDerivedStateOf(inputExtras)
+    FoundationPasswordTextField(
+        value = inputValue,
+        onValueChange = onValueChanged,
+        label = {
+            val labelMessage by rememberDerivedStateOf { extra?.message ?: label }
+            if (labelMessage.isNotEmpty()) {
+                Text(text = labelMessage)
+            }
+        },
+        isError = extra?.isError ?: false,
+        modifier = modifier.run {
+            if (requestFocus) {
+                val focusRequester = remember { FocusRequester() }
+                LaunchedEffect(focusRequester) {
+                    delay(600L)
+                    focusRequester.requestFocus()
+                }
+                modifier.focusRequester(focusRequester)
+            } else this
+        },
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         shape = MaterialTheme.shapes.medium,
@@ -246,11 +285,7 @@ fun NavGraphBuilder.loginAccountScreen(backPress: () -> Unit) {
         val sideEffectState = viewModel.sideEffectState.asState()
         val appEventInstance = appEventInstance
         LoginAccountScreen(
-            modifier = Modifier
-                .statusBarsPadding()
-                .imePadding()
-                .navigationBarsPadding()
-                .fillMaxSize(),
+            modifier = LoginStaticModifier.LoginScreen.ContainerModifier,
             backPress = backPress,
             uiStateGetter = uiState::value,
             sideEffectStateGetter = sideEffectState::value,

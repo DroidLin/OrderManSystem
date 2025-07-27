@@ -1,10 +1,10 @@
-package order.main.login.ui.internal.model
+package order.main.login.internal.ui.data
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
 
 @Stable
-data class LoginAccountPasswordUiState(
+internal data class LoginAccountPasswordUiState(
     val isLoading: Boolean = false,
     val inputAccount: TextFieldValue = TextFieldValue(),
     val inputPassword: TextFieldValue = TextFieldValue(),

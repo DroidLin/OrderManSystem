@@ -22,9 +22,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import order.main.foundation.KoinFoundation
 import order.main.foundation.ui.asState
+import order.main.foundation.ui.koinViewModel
 import order.main.foundation.ui.theme.FoundationTheme
 import order.main.system.R
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.KoinContext
 
 @Composable

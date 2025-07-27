@@ -5,9 +5,9 @@ import order.main.user.data.UserInfo
 
 interface UserInfoLocalRepository {
 
-    val userAccount: Flow<UserInfo>
+    val userInfo: Flow<UserInfo>
 
-    suspend fun updateUserData(userInfo: UserInfo)
+    suspend fun updateUserInfo(userInfo: UserInfo)
 
     suspend fun clear()
 }

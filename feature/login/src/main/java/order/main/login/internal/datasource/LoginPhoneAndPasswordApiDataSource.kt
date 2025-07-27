@@ -1,22 +1,24 @@
-package order.main.login.ui.internal.datasource
+package order.main.login.internal.datasource
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
 import order.main.foundation.BizException
-import order.main.login.ui.internal.model.LoginPasswordNetworkResponse
-import order.main.login.ui.internal.model.LoginPasswordResponse
+import order.main.login.internal.model.LoginPasswordNetworkResponse
+import order.main.login.internal.model.UserDataResponse
 import order.main.network.jsonRequestBody
 import order.main.user.data.UserAccount
 import order.main.user.data.UserInfo
+import org.koin.core.annotation.Factory
 
-internal class LoginPhoneAndPasswordDataSource(val httpClient: HttpClient) {
+@Factory(binds = [LoginPhoneAndPasswordApiDataSource::class])
+internal class LoginPhoneAndPasswordApiDataSource(val httpClient: HttpClient) {
 
     suspend fun loginPhoneAndPassword(
         phone: String,
         password: String
-    ): Result<LoginPasswordResponse> {
-        return kotlin.runCatching {
+    ): Result<UserDataResponse> {
+        return runCatching {
             val response = httpClient.post(
                 urlString = "",
             ) {
@@ -55,7 +57,7 @@ internal class LoginPhoneAndPasswordDataSource(val httpClient: HttpClient) {
                 language = user.language
             )
 
-            LoginPasswordResponse(userAccount = userAccount, userInfo = userInfo)
+            UserDataResponse(userAccount = userAccount, userInfo = userInfo)
         }
     }
 }

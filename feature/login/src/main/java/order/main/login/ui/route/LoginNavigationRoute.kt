@@ -1,4 +1,4 @@
-package order.main.login.ui
+package order.main.login.ui.route
 
 import kotlinx.serialization.Serializable
 

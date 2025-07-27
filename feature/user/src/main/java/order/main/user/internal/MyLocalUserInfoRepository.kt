@@ -9,9 +9,9 @@ internal class MyLocalUserInfoRepository(
     val dataStore: LocalUserInfoDataStore
 ) : UserInfoLocalRepository {
 
-    override val userAccount: Flow<UserInfo> = this.dataStore.data.map { it.toUserInfo() }
+    override val userInfo: Flow<UserInfo> = this.dataStore.data.map { it.toUserInfo() }
 
-    override suspend fun updateUserData(userInfo: UserInfo) {
+    override suspend fun updateUserInfo(userInfo: UserInfo) {
         dataStore.updateData { userInfo.toPreference() }
     }
 

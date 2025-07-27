@@ -20,7 +20,14 @@ coil = "3.0.0"
 coil-transform = "3.0.0"
 exoplayer3 = "1.4.1"
 splashScreen = "1.0.1"
+
+# navigation
 navigation = "2.8.4"
+
+# navigation3
+navigation3 = "1.0.0-alpha05"
+navigation3-lifecycle-viewModel = "1.0.0-SNAPSHOT"
+navigation3-material = "1.0.0-SNAPSHOT"
 datastore = "1.1.4"
 
 kotinImmutableCollection = "0.3.8"
@@ -125,6 +132,11 @@ material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "ad
 material3-adaptive-layout = { group = "androidx.compose.material3.adaptive", name = "adaptive-layout", version.ref = "adaptiveLayout" }
 material3-adaptive-navigation = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation", version.ref = "adaptiveLayout" }
 material3-adaptive-navigation-navigationSuite = { group = "androidx.compose.material3", name = "material3-adaptive-navigation-suite" }
+
+navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
+navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+navigation3-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "navigation3-lifecycle-viewModel" }
+navigation3-material3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "navigation3-material" }
 
 palette = { group = "androidx.palette", name = "palette", version.ref = "palette"}
 

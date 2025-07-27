@@ -9,7 +9,7 @@ internal class TestMyLocalUserAccountRepository : UserAccountLocalRepository {
 
     override val userAccount: Flow<UserAccount> = flowOf(UserAccount.Empty)
 
-    override suspend fun updateUserData(userAccount: UserAccount) {}
+    override suspend fun updateUserAccount(userAccount: UserAccount) {}
 
     override suspend fun clear() {}
 }

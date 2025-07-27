@@ -1,4 +1,4 @@
-package order.main.login.ui.internal.model
+package order.main.login.internal.ui.data
 
 import androidx.compose.runtime.Stable
 

@@ -9,6 +9,7 @@ import order.main.user.internal.LocalUserInfoDataStore
 import order.main.user.internal.MyLocalUserAccountRepository
 import order.main.user.internal.MyLocalUserInfoRepository
 import order.main.user.qualifier.MyUserDataRepository
+import order.main.user.qualifier.MyUserInfoRepository
 import order.main.user.tests.TestMyLocalUserAccountRepository
 import order.main.user.tests.TestUserDataRepository
 import org.jetbrains.annotations.TestOnly
@@ -27,24 +28,6 @@ class UserDependencies {
         coroutineScope: CoroutineScope
     ): LocalUserDataStore = LocalUserDataStore(context, coroutineScope)
 
-    @Factory(binds = [UserAccountLocalRepository::class, MyLocalUserAccountRepository::class])
-    internal fun userLocalRepository(
-        dataStore: LocalUserDataStore
-    ): UserAccountLocalRepository = MyLocalUserAccountRepository(dataStore)
-
-    @Singleton
-    internal fun localUserInfoDataStore(
-        @AndroidContext
-        context: Context,
-        @AppLifecycleCoroutineScope
-        coroutineScope: CoroutineScope,
-    ): LocalUserInfoDataStore = LocalUserInfoDataStore(context, coroutineScope)
-
-    @Factory(binds = [UserInfoLocalRepository::class, MyLocalUserAccountRepository::class])
-    internal fun userInfoLocalRepository(
-        dataStore: LocalUserInfoDataStore
-    ): UserInfoLocalRepository = MyLocalUserInfoRepository(dataStore)
-
     @MyUserDataRepository
     @Factory(binds = [UserAccountLocalRepository::class, MyLocalUserAccountRepository::class])
     internal fun myUserLocalRepository(
@@ -56,4 +39,31 @@ class UserDependencies {
     @Factory(binds = [UserAccountLocalRepository::class, TestMyLocalUserAccountRepository::class])
     internal fun testUserLocalRepository(
     ): TestMyLocalUserAccountRepository = TestMyLocalUserAccountRepository()
+
+    @Factory(binds = [UserAccountLocalRepository::class, MyLocalUserAccountRepository::class])
+    internal fun userLocalRepository(
+        @MyUserDataRepository
+        repository: UserAccountLocalRepository
+    ): UserAccountLocalRepository = repository
+
+    @Singleton
+    internal fun localUserInfoDataStore(
+        @AndroidContext
+        context: Context,
+        @AppLifecycleCoroutineScope
+        coroutineScope: CoroutineScope,
+    ): LocalUserInfoDataStore = LocalUserInfoDataStore(context, coroutineScope)
+
+    @MyUserInfoRepository
+    @Factory(binds = [UserInfoLocalRepository::class, MyLocalUserAccountRepository::class])
+    internal fun userInfoLocalRepository(
+        dataStore: LocalUserInfoDataStore
+    ): UserInfoLocalRepository = MyLocalUserInfoRepository(dataStore)
+
+    @Factory(binds = [UserInfoLocalRepository::class, MyLocalUserAccountRepository::class])
+    internal fun userInfoLocalRepository(
+        @MyUserInfoRepository
+        repository: UserInfoLocalRepository
+    ): UserInfoLocalRepository = repository
+
 }

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="login_string_account_input_limit">账号长度最少为4位</string>
+
     <string name="string_login_password_at_least_8">密码长度最少为8位</string>
     <string name="string_login_password_hint">请输入您的密码，长度不少于8位</string>
 
@@ -9,4 +11,6 @@
     <string name="login_string_login_to_continue">登陆以继续</string>
 
     <string name="login_string_login_button">登陆</string>
+
+    <string name="login_string_app_internal_error">内部错误(%1$s)</string>
 </resources>

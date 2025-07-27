@@ -7,7 +7,7 @@ interface UserAccountLocalRepository {
 
     val userAccount: Flow<UserAccount>
 
-    suspend fun updateUserData(userAccount: UserAccount)
+    suspend fun updateUserAccount(userAccount: UserAccount)
 
     suspend fun clear()
 }

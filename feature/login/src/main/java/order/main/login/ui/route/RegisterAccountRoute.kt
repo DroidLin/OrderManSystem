@@ -1,10 +1,10 @@
-package order.main.login.ui
+package order.main.login.ui.route
 
 import androidx.compose.runtime.Stable
 import kotlinx.serialization.Serializable
 
 @Stable
 @Serializable
-internal data class LoginAccountScreenRoute(
-    val inputAccount: String?
+data class RegisterAccountRoute(
+    val inputAccount: String? = null
 )
