@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.navigation.toRoute
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,13 +34,14 @@ internal class LoginAccountViewModel(
     private val savedStateHandle: SavedStateHandle,
     @param:AndroidContext
     private val context: Context,
-    private val loginAccountScreenRoute: LoginAccountScreenRoute,
     @param:MyUserDataRepository
     private val userAccountLocalRepository: UserAccountLocalRepository,
     @param:MyUserInfoRepository
     private val userInfoLocalRepository: UserInfoLocalRepository,
     private val loginRepository: LoginRepository,
 ) : ViewModel() {
+
+    private val loginAccountScreenRoute: LoginAccountScreenRoute = savedStateHandle.toRoute()
 
     private val _uiState = MutableStateFlow(
         value = LoginAccountPasswordUiState(
